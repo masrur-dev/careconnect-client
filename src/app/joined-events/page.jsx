@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { apiFetch, clearJwt } from "@/lib/api";
 import EventCard from "@/components/EventCard";
 
 export default function JoinedEventsPage() {
@@ -39,15 +40,17 @@ export default function JoinedEventsPage() {
       setError("");
 
       try {
-        const response = await fetch(
-          "http://localhost:5000/my-joined-events",
-          {
-            method: "GET",
-            credentials: "include",
-            cache: "no-store",
-            signal: controller.signal,
-          }
-        );
+        const response = await apiFetch("/my-joined-events", {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (response.status === 401) {
+          clearJwt();
+          router.replace("/login");
+          return;
+        }
 
         if (!response.ok) {
           throw new Error(
@@ -77,7 +80,7 @@ export default function JoinedEventsPage() {
     loadJoinedEvents();
 
     return () => controller.abort();
-  }, [isPending, userId]);
+  }, [isPending, userId, router]);
 
   // Loading session
   if (isPending || (userId && loading)) {

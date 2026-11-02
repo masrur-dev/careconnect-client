@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import JoinEventButton from "@/components/JoinEventButton";
+import { apiUrl } from "@/lib/api";
 
 // Fetch single event from Express API
 async function EventContent({ params }) {
@@ -10,10 +11,9 @@ async function EventContent({ params }) {
   let event = null;
 
   try {
-    const response = await fetch(
-      `http://localhost:5000/events/${id}`,
-      { cache: "no-store" }
-    );
+    const response = await fetch(apiUrl(`/events/${id}`), {
+      cache: "no-store",
+    });
 
     if (response.ok) {
       event = await response.json();

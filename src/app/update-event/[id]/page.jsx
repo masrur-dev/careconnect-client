@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { apiFetch, apiUrl, clearJwt } from "@/lib/api";
 import { toast, Toaster } from "sonner";
 
 export default function UpdateEventPage() {
@@ -35,13 +36,10 @@ export default function UpdateEventPage() {
 
     async function loadEvent() {
       try {
-        const response = await fetch(
-          `http://localhost:5000/events/${eventId}`,
-          {
-            cache: "no-store",
-            signal: controller.signal,
-          }
-        );
+        const response = await fetch(apiUrl(`/events/${eventId}`), {
+          cache: "no-store",
+          signal: controller.signal,
+        });
 
         if (!response.ok) {
           throw new Error("Failed to load event.");
@@ -125,19 +123,22 @@ export default function UpdateEventPage() {
     setSaving(true);
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/events/${eventId}`,
+      const response = await apiFetch(
+        `/events/${eventId}`,
         {
           method: "PATCH",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify(updates),
         }
       );
 
       const result = await response.json();
+
+      if (response.status === 401) {
+        clearJwt();
+        toast.error("Please login again.");
+        router.replace("/login");
+        return;
+      }
 
       if (!response.ok) {
         toast.error(

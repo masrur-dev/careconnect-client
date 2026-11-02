@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { apiFetch, clearJwt } from "@/lib/api";
 import { toast, Toaster } from "sonner";
 
 export default function ManageEventsPage() {
@@ -37,12 +38,17 @@ export default function ManageEventsPage() {
       setError("");
 
       try {
-        const response = await fetch("http://localhost:5000/my-events", {
+        const response = await apiFetch("/my-events", {
           method: "GET",
-          credentials: "include",
           cache: "no-store",
           signal: controller.signal,
         });
+
+        if (response.status === 401) {
+          clearJwt();
+          router.replace("/login");
+          return;
+        }
 
         if (!response.ok) {
           throw new Error("Failed to load your events.");
@@ -67,7 +73,7 @@ export default function ManageEventsPage() {
     loadMyEvents();
 
     return () => controller.abort();
-  }, [isPending, userId]);
+  }, [isPending, userId, router]);
 
   // Delete selected event
   const handleDelete = async () => {
@@ -76,11 +82,10 @@ export default function ManageEventsPage() {
     setDeleting(true);
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/events/${selectedEvent._id}`,
+      const response = await apiFetch(
+        `/events/${selectedEvent._id}`,
         {
           method: "DELETE",
-          credentials: "include",
         },
       );
 

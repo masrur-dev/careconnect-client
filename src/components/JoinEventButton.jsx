@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { apiFetch, clearJwt } from "@/lib/api";
 import { toast, Toaster } from "sonner";
 
 export default function JoinEventButton({ eventId }) {
@@ -28,11 +29,10 @@ export default function JoinEventButton({ eventId }) {
 
     async function checkJoinStatus() {
       try {
-        const response = await fetch(
-          `http://localhost:5000/events/${eventId}/join-status`,
+        const response = await apiFetch(
+          `/events/${eventId}/join-status`,
           {
             method: "GET",
-            credentials: "include",
             cache: "no-store",
             signal: controller.signal,
           }
@@ -79,11 +79,10 @@ export default function JoinEventButton({ eventId }) {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/events/${eventId}/join`,
+      const response = await apiFetch(
+        `/events/${eventId}/join`,
         {
           method: "POST",
-          credentials: "include",
         }
       );
 
@@ -96,6 +95,7 @@ export default function JoinEventButton({ eventId }) {
       }
 
       if (response.status === 401) {
+        clearJwt();
         toast.error("Please login again.");
         router.push("/login");
         return;

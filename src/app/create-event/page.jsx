@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { apiFetch, clearJwt } from "@/lib/api";
 import { toast, Toaster } from "sonner";
 
 export default function CreateEventPage() {
@@ -73,24 +74,20 @@ export default function CreateEventPage() {
     setLoading(true);
 
     try {
-      // Send event to Express Server
-      const response = await fetch(
-        "http://localhost:5000/events",
-        {
-          method: "POST",
-
-          // Send Better Auth session cookie
-          credentials: "include",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify(event),
-        }
-      );
+      // Send event to Express Server (identity comes from the JWT, not the body)
+      const response = await apiFetch("/events", {
+        method: "POST",
+        body: JSON.stringify(event),
+      });
 
       const result = await response.json();
+
+      if (response.status === 401) {
+        clearJwt();
+        toast.error("Please login again.");
+        router.replace("/login");
+        return;
+      }
 
       if (!response.ok) {
         console.error("Create Event Error:", result);

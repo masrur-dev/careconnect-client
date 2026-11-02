@@ -21,7 +21,7 @@ export default function ErrorPage({ error, reset }) {
         </h1>
 
         <p className="mt-4 text-base-content/70">
-          We couldn't load this page.
+          We couldn&apos;t load this page.
           Please try again.
         </p>
 

@@ -1,4 +1,3 @@
-
 import { MongoClient } from "mongodb";
 
 const uri = process.env.MONGODB_URI;
@@ -9,13 +8,16 @@ if (!uri) {
 
 const globalForMongo = globalThis;
 
-// Reuse MongoDB connection in development
-if (!globalForMongo._careconnectMongoPromise) {
-  const client = new MongoClient(uri);
-
-  globalForMongo._careconnectMongoPromise =
-    client.connect();
+// Reuse one client across hot reloads. Never call connect() here — the driver
+// connects lazily on the first operation. Connecting at import time broke
+// `next build` (Vercel's build box cannot reach Atlas, so page-data collection
+// for /api/auth/[...all] failed with MongoNetworkError).
+if (!globalForMongo._careconnectMongoClient) {
+  globalForMongo._careconnectMongoClient = new MongoClient(uri, {
+    serverSelectionTimeoutMS: 10000,
+  });
 }
 
-export const mongoClientPromise =
-  globalForMongo._careconnectMongoPromise;
+export const mongoClientPromise = Promise.resolve(
+  globalForMongo._careconnectMongoClient
+);

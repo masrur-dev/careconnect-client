@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarCheck2, Heart, Mail, UsersRound } from "lucide-react";
+import { connection } from "next/server";
+import { apiUrl } from "@/lib/api";
 
 const features = [
   {
@@ -50,6 +52,49 @@ export function FeaturesSection() {
               <h3 className="text-xl font-bold">{title}</h3>
               <p className="mt-3 leading-7 text-base-content/65">{description}</p>
             </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export async function CommunityStats() {
+  await connection();
+
+  let stats;
+
+  try {
+    const response = await fetch(apiUrl("/stats"), { cache: "no-store" });
+    if (!response.ok) throw new Error("Failed to fetch community statistics");
+    stats = await response.json();
+  } catch (error) {
+    console.error("Failed to load community stats:", error);
+    return null;
+  }
+
+  const items = [
+    { label: "Upcoming events", value: stats.upcomingEvents, icon: CalendarCheck2 },
+    { label: "Volunteer sign-ups", value: stats.participations, icon: Heart },
+    { label: "Community members", value: stats.members, icon: UsersRound },
+  ];
+
+  return (
+    <section className="bg-base-100 py-12 md:py-16">
+      <div className="container-custom">
+        <div className="mb-8 text-center">
+          <span className="section-kicker">Small actions add up</span>
+          <h2 className="section-heading mt-3">Our community, <span className="text-primary">in action.</span></h2>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {items.map(({ label, value, icon: Icon }) => (
+            <div key={label} className="flex items-center gap-4 rounded-2xl border border-base-300/70 bg-base-100 p-6 shadow-sm">
+              <span className="feature-icon"><Icon size={22} /></span>
+              <div>
+                <p className="text-3xl font-bold tabular-nums">{Number(value || 0).toLocaleString()}</p>
+                <p className="mt-1 text-sm text-base-content/65">{label}</p>
+              </div>
+            </div>
           ))}
         </div>
       </div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, HeartHandshake, MapPin, Sparkles, UsersRound } from "lucide-react";
 import RecentEvents from "@/components/RecentEvents";
-import { FeaturesSection, GallerySection, NewsletterSection } from "@/components/HomeExtraSections";
+import { CommunityStats, FeaturesSection, GallerySection, NewsletterSection } from "@/components/HomeExtraSections";
 
 const highlights = [
   { icon: CalendarDays, label: "Find an event", detail: "See what's happening nearby" },
@@ -70,6 +70,7 @@ export default function Home() {
       </section>
       <FeaturesSection />
       <RecentEvents />
+      <CommunityStats />
       <GallerySection />
       <NewsletterSection />
     </>

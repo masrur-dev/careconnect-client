@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { apiFetch, clearJwt } from "@/lib/api";
 import { useToast } from "@/components/ToastProvider";
@@ -15,11 +16,18 @@ export default function ManageEventsPage() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
   const userId = session?.user?.id;
+  const filteredEvents = events.filter((event) => {
+    const query = search.trim().toLowerCase();
+    if (!query) return true;
+    return [event.title, event.eventType, event.location]
+      .some((value) => value?.toLowerCase().includes(query));
+  });
 
   // Protect private route
   useEffect(() => {
@@ -159,6 +167,23 @@ export default function ManageEventsPage() {
             </Link>
           </div>
         ) : (
+          <>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <label className="input input-bordered flex w-full max-w-md items-center gap-2 rounded-xl bg-base-100">
+              <Search size={18} className="shrink-0 text-base-content/50" aria-hidden="true" />
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search title, type, or location"
+                aria-label="Search your events"
+                className="grow"
+              />
+            </label>
+            <span className="text-sm text-base-content/60" aria-live="polite">
+              Showing {filteredEvents.length} of {events.length} events
+            </span>
+          </div>
           <div className="overflow-x-auto rounded-xl border border-base-300 bg-base-100 shadow-sm">
             <table className="table">
               <thead>
@@ -172,7 +197,9 @@ export default function ManageEventsPage() {
               </thead>
 
               <tbody>
-                {events.map((event) => (
+                {filteredEvents.length === 0 ? (
+                  <tr><td colSpan={5} className="py-10 text-center text-base-content/60">No events match your search.</td></tr>
+                ) : filteredEvents.map((event) => (
                   <tr key={event._id}>
                     <td>
                       <Link
@@ -212,6 +239,7 @@ export default function ManageEventsPage() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 

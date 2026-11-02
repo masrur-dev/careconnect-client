@@ -4,6 +4,7 @@ import Image from "next/image";
 import { CalendarDays } from "lucide-react";
 import { Suspense } from "react";
 import JoinEventButton from "@/components/JoinEventButton";
+import ShareEventButton from "@/components/ShareEventButton";
 import { apiUrl } from "@/lib/api";
 
 // Fetch single event from Express API
@@ -57,12 +58,12 @@ async function EventContent({ params }) {
       <div className="container-custom">
 
         {/* Back Button */}
-        <Link
-          href="/events"
-          className="btn btn-ghost mb-6"
-        >
-          ← Back to Events
-        </Link>
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <Link href="/events" className="btn btn-ghost rounded-full">
+            ← Back to Events
+          </Link>
+          <ShareEventButton title={event.title} />
+        </div>
 
         {/* Event Card */}
         <div className="overflow-hidden rounded-2xl bg-base-100 shadow-lg">

@@ -40,10 +40,11 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-neutral-content/20 py-5 text-center text-sm opacity-80">
-        © {new Date().getFullYear()} CareConnect.
-        All rights reserved.
-      </div>
+     
+<div className="border-t border-neutral-content/20 py-5 text-center text-sm opacity-80">
+  © 2026 CareConnect. All rights reserved.
+</div>
+
     </footer>
   );
 }

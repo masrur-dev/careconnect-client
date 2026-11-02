@@ -3,94 +3,189 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
+import AuthNav from "@/components/AuthNav";
+import ThemeToggle from "@/components/ThemeToggle";
+import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
 
-  // Authentication will be added later.
-  const user = null;
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
 
-  const navLinks = (
-    <>
-      <li>
-        <Link href="/" onClick={() => setMenuOpen(false)}>
-          Home
-        </Link>
-      </li>
-      <li>
-        <Link
-          href="/events"
-          onClick={() => setMenuOpen(false)}
-        >
-          Upcoming Events
-        </Link>
-      </li>
-    </>
-  );
+  const closeMenu = () => setMenuOpen(false);
+
+  const handleMobileLogout = async () => {
+    const { error } = await authClient.signOut();
+
+    if (error) {
+      console.error("Logout failed:", error);
+      return;
+    }
+
+    closeMenu();
+    router.push("/");
+    router.refresh();
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-base-300 bg-base-100">
-      <div className="navbar container-custom min-h-20">
-        <div className="navbar-start">
+      <div className="navbar container-custom min-h-20 gap-2">
+
+        {/* Logo */}
+        <div className="navbar-start min-w-0">
           <Link
             href="/"
-            className="text-2xl font-bold text-primary"
+            className="whitespace-nowrap text-lg font-bold text-primary sm:text-2xl"
           >
             CareConnect
           </Link>
         </div>
 
+        {/* Desktop Navigation */}
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal gap-3 px-1 font-medium">
-            {navLinks}
+            <li>
+              <Link href="/">Home</Link>
+            </li>
+            <li>
+              <Link href="/events">Upcoming Events</Link>
+            </li>
           </ul>
         </div>
 
-        <div className="navbar-end gap-2">
-          {user ? (
-            <div className="dropdown dropdown-end">
-              <button className="btn btn-ghost">
+        {/* Navbar Right */}
+        <div className="navbar-end min-w-0 gap-1 sm:gap-2">
+          <ThemeToggle />
+
+          {/* Desktop Profile Dropdown */}
+          {user && (
+            <div className="dropdown dropdown-end hidden lg:block">
+              <button
+                type="button"
+                tabIndex={0}
+                className="btn btn-ghost btn-sm"
+              >
                 Profile
               </button>
-              <ul className="menu dropdown-content z-50 w-52 rounded-box bg-base-100 p-2 shadow-lg">
-                <li><Link href="/create-event">Create Event</Link></li>
-                <li><Link href="/manage-events">Manage Events</Link></li>
-                <li><Link href="/joined-events">Joined Events</Link></li>
-                <li><button>Logout</button></li>
+
+              <ul
+                tabIndex={0}
+                className="menu dropdown-content z-50 mt-3 w-52 rounded-box bg-base-100 p-2 shadow-lg"
+              >
+                <li>
+                  <Link href="/create-event">
+                    Create Event
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/manage-events">
+                    Manage Events
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/joined-events">
+                    Joined Events
+                  </Link>
+                </li>
               </ul>
             </div>
-          ) : (
-            <Link
-              href="/login"
-              className="btn btn-primary hidden sm:flex"
-            >
-              Login
-            </Link>
           )}
 
+          {/* Desktop Auth Buttons / User Profile */}
+          <div className="hidden lg:block">
+            <AuthNav />
+          </div>
+
+          {/* Mobile Hamburger Button */}
           <button
             type="button"
-            className="btn btn-ghost lg:hidden"
+            className="btn btn-ghost btn-square lg:hidden"
             onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle navigation menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
+            aria-controls="careconnect-mobile-menu"
           >
-            ☰
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </div>
 
+      {/* Mobile Navigation */}
       {menuOpen && (
-        <div className="border-t border-base-300 bg-base-100 lg:hidden">
-          <ul className="menu container-custom py-3">
-            {navLinks}
-            <li className="sm:hidden">
-              <Link href="/login" onClick={() => setMenuOpen(false)}>
-                Login
+        <nav
+          id="careconnect-mobile-menu"
+          className="border-t border-base-300 bg-base-100 lg:hidden"
+        >
+          <ul className="menu container-custom w-full gap-1 py-3">
+            <li>
+              <Link href="/" onClick={closeMenu}>
+                Home
               </Link>
             </li>
+
+            <li>
+              <Link href="/events" onClick={closeMenu}>
+                Upcoming Events
+              </Link>
+            </li>
+
+            {!isPending && user && (
+              <>
+                <li className="menu-title">
+                  {user.name}
+                </li>
+
+                <li>
+                  <Link href="/create-event" onClick={closeMenu}>
+                    Create Event
+                  </Link>
+                </li>
+
+                <li>
+                  <Link href="/manage-events" onClick={closeMenu}>
+                    Manage Events
+                  </Link>
+                </li>
+
+                <li>
+                  <Link href="/joined-events" onClick={closeMenu}>
+                    Joined Events
+                  </Link>
+                </li>
+
+                <li>
+                  <button
+                    type="button"
+                    onClick={handleMobileLogout}
+                    className="text-error"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
+            )}
+
+            {!isPending && !user && (
+              <>
+                <li>
+                  <Link href="/login" onClick={closeMenu}>
+                    Login
+                  </Link>
+                </li>
+
+                <li>
+                  <Link href="/register" onClick={closeMenu}>
+                    Register
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
-        </div>
+        </nav>
       )}
     </header>
   );

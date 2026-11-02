@@ -7,6 +7,7 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { apiFetch, clearJwt } from "@/lib/api";
 import EventCard from "@/components/EventCard";
+import LeaveJoinedEventButton from "@/components/LeaveJoinedEventButton";
 
 export default function JoinedEventsPage() {
   const router = useRouter();
@@ -142,10 +143,13 @@ export default function JoinedEventsPage() {
           // Joined Events Grid
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {events.map((event) => (
-              <EventCard
-                key={event._id}
-                event={event}
-              />
+              <div key={event._id} className="flex flex-col gap-3">
+                <EventCard event={event} />
+                <LeaveJoinedEventButton
+                  eventId={String(event._id)}
+                  onLeave={(eventId) => setEvents((current) => current.filter((item) => String(item._id) !== eventId))}
+                />
+              </div>
             ))}
           </div>
 

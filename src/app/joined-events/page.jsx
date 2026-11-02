@@ -16,8 +16,13 @@ export default function JoinedEventsPage() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [dateOrder, setDateOrder] = useState("soonest");
 
   const userId = session?.user?.id;
+  const sortedEvents = [...events].sort((first, second) => {
+    const difference = new Date(first.eventDate) - new Date(second.eventDate);
+    return dateOrder === "latest" ? -difference : difference;
+  });
 
   // Redirect users who are not logged in
   useEffect(() => {
@@ -141,8 +146,23 @@ export default function JoinedEventsPage() {
         ) : (
 
           // Joined Events Grid
+          <>
+          <div className="mb-5 flex justify-end">
+            <label className="flex items-center gap-3 text-sm font-medium">
+              Sort by date
+              <select
+                className="select select-bordered rounded-xl bg-base-100"
+                value={dateOrder}
+                onChange={(event) => setDateOrder(event.target.value)}
+                aria-label="Sort joined events by date"
+              >
+                <option value="soonest">Soonest first</option>
+                <option value="latest">Latest first</option>
+              </select>
+            </label>
+          </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {events.map((event) => (
+            {sortedEvents.map((event) => (
               <div key={event._id} className="flex flex-col gap-3">
                 <EventCard event={event} />
                 <LeaveJoinedEventButton
@@ -152,6 +172,7 @@ export default function JoinedEventsPage() {
               </div>
             ))}
           </div>
+          </>
 
         )}
       </div>

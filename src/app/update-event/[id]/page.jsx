@@ -6,9 +6,10 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { apiFetch, apiUrl, clearJwt } from "@/lib/api";
-import { toast, Toaster } from "sonner";
+import { useToast } from "@/components/ToastProvider";
 
 export default function UpdateEventPage() {
+  const toast = useToast();
   const router = useRouter();
   const params = useParams();
   const eventId = params.id;
@@ -192,7 +193,6 @@ export default function UpdateEventPage() {
 
   return (
     <section className="min-h-screen bg-base-200 px-4 py-12">
-      <Toaster position="top-right" richColors />
 
       <div className="mx-auto max-w-3xl">
         <Link

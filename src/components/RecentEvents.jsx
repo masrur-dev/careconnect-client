@@ -58,7 +58,7 @@ async function RecentEventsList() {
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {events.map((event) => (
+      {events.slice(0, 6).map((event) => (
         <EventCard key={event._id} event={event} />
       ))}
     </div>
@@ -70,8 +70,9 @@ export default function RecentEvents() {
     <section className="bg-base-100 py-20">
       <div className="container-custom">
         <div className="mb-10 text-center">
-          <h2 className="text-3xl font-bold">
-            Recent Upcoming Events
+          <span className="section-kicker">Get involved</span>
+          <h2 className="section-heading mt-3">
+            Upcoming <span className="text-primary">events.</span>
           </h2>
 
           <p className="mt-3 text-base-content/70">

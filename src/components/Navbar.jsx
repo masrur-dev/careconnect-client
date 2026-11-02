@@ -49,10 +49,10 @@ export default function Navbar() {
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal gap-3 px-1 font-medium">
             <li>
-              <Link href="/">Home</Link>
+              <Link href="/" className="btn btn-ghost btn-sm rounded-full px-4">Home</Link>
             </li>
             <li>
-              <Link href="/events">Upcoming Events</Link>
+              <Link href="/events" className="btn btn-ghost btn-sm rounded-full px-4">Upcoming Events</Link>
             </li>
           </ul>
         </div>
@@ -72,26 +72,14 @@ export default function Navbar() {
                 Profile
               </button>
 
-              <ul
+              <div
                 tabIndex={0}
-                className="menu dropdown-content z-50 mt-3 w-52 rounded-box bg-base-100 p-2 shadow-lg"
+                className="dropdown-content profile-dropdown-content z-50 mt-3 rounded-2xl border border-base-300/70 bg-base-100 p-3 shadow-xl"
               >
-                <li>
-                  <Link href="/create-event">
-                    Create Event
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/manage-events">
-                    Manage Events
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/joined-events">
-                    Joined Events
-                  </Link>
-                </li>
-              </ul>
+                <Link href="/create-event" className="btn btn-ghost btn-sm rounded-xl">Create Event</Link>
+                <Link href="/manage-events" className="btn btn-ghost btn-sm rounded-xl">Manage Events</Link>
+                <Link href="/joined-events" className="btn btn-ghost btn-sm rounded-xl">Joined Events</Link>
+              </div>
             </div>
           )}
 
@@ -118,7 +106,7 @@ export default function Navbar() {
       {menuOpen && (
         <nav
           id="careconnect-mobile-menu"
-          className="border-t border-base-300 bg-base-100 lg:hidden"
+          className="mobile-nav-drop border-t border-base-300 bg-base-100 lg:hidden"
         >
           <ul className="menu container-custom w-full gap-1 py-3">
             <li>

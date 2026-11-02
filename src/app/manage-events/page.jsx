@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { apiFetch, clearJwt } from "@/lib/api";
-import { toast, Toaster } from "sonner";
+import { useToast } from "@/components/ToastProvider";
 
 export default function ManageEventsPage() {
+  const toast = useToast();
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
 
@@ -123,7 +124,6 @@ export default function ManageEventsPage() {
 
   return (
     <section className="min-h-screen bg-base-200 py-14">
-      <Toaster position="top-right" richColors />
 
       <div className="container-custom">
         {/* Heading */}

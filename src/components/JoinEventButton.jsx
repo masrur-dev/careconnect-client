@@ -5,9 +5,27 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { apiFetch, clearJwt } from "@/lib/api";
-import { toast, Toaster } from "sonner";
+import { useToast } from "@/components/ToastProvider";
+
+async function readApiResponse(response) {
+  const contentType = response.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    return response.json();
+  }
+
+  await response.text();
+
+  return {
+    message:
+      response.status === 404
+        ? "API endpoint was not found. Restart the backend server and try again."
+        : `The server returned an unexpected response (${response.status}).`,
+  };
+}
 
 export default function JoinEventButton({ eventId }) {
+  const toast = useToast();
   const router = useRouter();
 
   const { data: session, isPending } = authClient.useSession();
@@ -65,6 +83,12 @@ export default function JoinEventButton({ eventId }) {
     return () => controller.abort();
   }, [eventId, userId, isPending]);
 
+  const handleAuthFailure = () => {
+    clearJwt();
+    toast.error("Please login again.");
+    router.push("/login");
+  };
+
   // Join event
   const handleJoinEvent = async () => {
     if (!session?.user) {
@@ -86,7 +110,7 @@ export default function JoinEventButton({ eventId }) {
         }
       );
 
-      const result = await response.json();
+      const result = await readApiResponse(response);
 
       if (response.status === 409) {
         setJoined(true);
@@ -95,9 +119,7 @@ export default function JoinEventButton({ eventId }) {
       }
 
       if (response.status === 401) {
-        clearJwt();
-        toast.error("Please login again.");
-        router.push("/login");
+        handleAuthFailure();
         return;
       }
 
@@ -118,22 +140,73 @@ export default function JoinEventButton({ eventId }) {
     }
   };
 
+  const handleLeaveEvent = async () => {
+    if (loading || !joined || checking || statusError) return;
+
+    setLoading(true);
+
+    try {
+      const response = await apiFetch(`/events/${eventId}/join`, {
+        method: "DELETE",
+      });
+      const result = await readApiResponse(response);
+
+      if (response.status === 401) {
+        handleAuthFailure();
+        return;
+      }
+
+      if (!response.ok) {
+        toast.error(result.message || "Failed to leave event.");
+        return;
+      }
+
+      setJoined(false);
+      toast.success("You have left the event.");
+    } catch (error) {
+      console.error("Leave event error:", error);
+      toast.error("Could not connect to the server.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (joined && !isPending && !checking && !statusError) {
+    return (
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="button" disabled className="btn btn-success rounded-xl">
+          ✓ Joined Event
+        </button>
+        <button
+          type="button"
+          onClick={handleLeaveEvent}
+          disabled={loading}
+          className="btn btn-outline btn-error rounded-xl"
+        >
+          {loading ? (
+            <>
+              <span className="loading loading-spinner loading-sm" />
+              Leaving Event...
+            </>
+          ) : (
+            "Leave Event"
+          )}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <>
-      <Toaster position="top-right" richColors />
-
       <button
         type="button"
         onClick={handleJoinEvent}
         disabled={
           isPending ||
           loading ||
-          joined ||
           (Boolean(userId) && (checking || statusError))
         }
-        className={`btn ${
-          joined ? "btn-success" : "btn-primary"
-        }`}
+        className="btn btn-primary rounded-xl"
       >
         {isPending ? (
           "Checking Login..."
@@ -151,8 +224,6 @@ export default function JoinEventButton({ eventId }) {
             <span className="loading loading-spinner loading-sm" />
             Joining Event...
           </>
-        ) : joined ? (
-          "✓ Joined Event"
         ) : (
           "Join Event"
         )}

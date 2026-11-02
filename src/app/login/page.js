@@ -4,9 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-import { toast, Toaster } from "sonner";
+import { useToast } from "@/components/ToastProvider";
 
 export default function LoginPage() {
+  const toast = useToast();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -44,7 +45,6 @@ export default function LoginPage() {
 
   return (
     <section className="flex min-h-screen items-center justify-center bg-base-200 px-4 py-16">
-      <Toaster position="top-right" richColors />
 
       <div className="card w-full max-w-md border border-base-300 bg-base-100 shadow-xl">
         <div className="card-body p-7 md:p-10">

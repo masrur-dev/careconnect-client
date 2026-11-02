@@ -1,5 +1,7 @@
 
 import Link from "next/link";
+import Image from "next/image";
+import { CalendarDays } from "lucide-react";
 import { Suspense } from "react";
 import JoinEventButton from "@/components/JoinEventButton";
 import { apiUrl } from "@/lib/api";
@@ -65,9 +67,24 @@ async function EventContent({ params }) {
         {/* Event Card */}
         <div className="overflow-hidden rounded-2xl bg-base-100 shadow-lg">
 
-          {/* Image Placeholder */}
-          <div className="flex h-64 items-center justify-center bg-base-300 text-base-content/60">
-            Community Event
+          {/* Event Thumbnail */}
+          <div className="relative h-64 overflow-hidden bg-gradient-to-br from-primary/15 via-base-200 to-secondary/20 md:h-[420px]">
+            {event.thumbnail && !event.thumbnail.includes("example.com") ? (
+              <Image
+                src={event.thumbnail}
+                alt={`${event.title} event thumbnail`}
+                width={1600}
+                height={900}
+                unoptimized
+                preload
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-lg font-semibold text-base-content/55">
+                {event.eventType || "Community Event"}
+              </div>
+            )}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/35 to-transparent" />
           </div>
 
           <div className="p-6 md:p-10">
@@ -102,8 +119,9 @@ async function EventContent({ params }) {
                   Event Date
                 </p>
 
-                <p className="mt-2 font-semibold">
-                  📅 {formattedDate}
+                <p className="mt-2 flex items-center gap-2 font-semibold">
+                  <CalendarDays size={18} className="shrink-0 text-primary" aria-hidden="true" />
+                  {formattedDate}
                 </p>
               </div>
 

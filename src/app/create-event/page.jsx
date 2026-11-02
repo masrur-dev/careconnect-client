@@ -5,9 +5,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { apiFetch, clearJwt } from "@/lib/api";
-import { toast, Toaster } from "sonner";
+import { useToast } from "@/components/ToastProvider";
 
 export default function CreateEventPage() {
+  const toast = useToast();
   const router = useRouter();
 
   const { data: session, isPending } = authClient.useSession();
@@ -131,7 +132,6 @@ export default function CreateEventPage() {
 
   return (
     <section className="bg-base-200 px-4 py-12">
-      <Toaster position="top-right" richColors />
 
       <div className="mx-auto max-w-3xl">
 

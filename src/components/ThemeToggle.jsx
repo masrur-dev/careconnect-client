@@ -1,9 +1,10 @@
 
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function ThemeToggle() {
+  const [theme, setTheme] = useState("light");
 
   // Restore saved theme after page loads
   useEffect(() => {
@@ -16,6 +17,7 @@ export default function ThemeToggle() {
         "data-theme",
         savedTheme
       );
+      setTheme(savedTheme);
     }
   }, []);
 
@@ -32,6 +34,7 @@ export default function ThemeToggle() {
       "data-theme",
       nextTheme
     );
+    setTheme(nextTheme);
 
     localStorage.setItem(
       "careconnect-theme",
@@ -43,11 +46,20 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggleTheme}
-      className="btn btn-ghost btn-sm"
-      aria-label="Toggle light and dark theme"
+      className="btn btn-ghost btn-sm rounded-full px-3"
+      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+      aria-pressed={theme === "dark"}
       title="Change Theme"
     >
-      🌓 Theme
+      <span className={`swap swap-rotate ${theme === "dark" ? "swap-active" : ""}`} aria-hidden="true">
+        <svg className="swap-on h-5 w-5 fill-current" viewBox="0 0 24 24">
+          <path d="M12 2a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1Zm0 17a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1ZM4.93 4.93a1 1 0 0 1 1.41 0l.71.71a1 1 0 1 1-1.41 1.41l-.71-.71a1 1 0 0 1 0-1.41Zm12.02 12.02a1 1 0 0 1 1.41 0l.71.71a1 1 0 1 1-1.41 1.41l-.71-.71a1 1 0 0 1 0-1.41ZM2 12a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1Zm17 0a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1ZM4.93 19.07a1 1 0 0 1 0-1.41l.71-.71a1 1 0 1 1 1.41 1.41l-.71.71a1 1 0 0 1-1.41 0ZM16.95 7.05a1 1 0 0 1 0-1.41l.71-.71a1 1 0 1 1 1.41 1.41l-.71.71a1 1 0 0 1-1.41 0ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z" />
+        </svg>
+        <svg className="swap-off h-5 w-5 fill-current" viewBox="0 0 24 24">
+          <path d="M20.1 15.5A8.5 8.5 0 0 1 8.5 3.9 8.6 8.6 0 1 0 20.1 15.5Z" />
+        </svg>
+      </span>
+      <span className="hidden sm:inline">Theme</span>
     </button>
   );
 }

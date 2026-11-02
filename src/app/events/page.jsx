@@ -76,15 +76,16 @@ async function EventsList() {
 
 export default function UpcomingEventsPage() {
   return (
-    <section className="min-h-screen bg-base-200 py-16">
+    <section className="min-h-screen bg-base-200/60 py-16 md:py-20">
       <div className="container-custom">
 
-        <div className="mb-12 text-center">
-          <h1 className="mb-4 text-4xl font-bold">
-            Upcoming Events
+        <div className="mb-12 rounded-3xl border border-base-300/60 bg-base-100 px-6 py-10 text-center shadow-sm md:px-12 md:py-14">
+          <span className="badge badge-primary badge-outline mb-4 rounded-full px-4 py-3">Find your next good thing</span>
+          <h1 className="mb-4 text-4xl font-bold tracking-tight md:text-5xl">
+            Upcoming <span className="text-primary">Events</span>
           </h1>
 
-          <p className="mx-auto max-w-2xl text-base-content/70">
+          <p className="mx-auto max-w-2xl text-base leading-7 text-base-content/70">
             Discover community service events, connect with
             volunteers, and make a positive impact together.
           </p>

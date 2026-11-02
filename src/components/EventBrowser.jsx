@@ -8,13 +8,18 @@ import { apiUrl } from "@/lib/api";
 export default function EventBrowser({ initialEvents }) {
   const [events, setEvents] = useState(initialEvents);
   const [search, setSearch] = useState("");
+  const [eventType, setEventType] = useState("all");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const eventTypes = Array.from(new Set(initialEvents.map((event) => event.eventType).filter(Boolean)));
 
   useEffect(() => {
     const query = search.trim();
+    const params = new URLSearchParams();
+    if (query) params.set("search", query);
+    if (eventType !== "all") params.set("type", eventType);
 
-    if (!query) {
+    if (params.size === 0) {
       setEvents(initialEvents);
       setError("");
       setLoading(false);
@@ -28,7 +33,7 @@ export default function EventBrowser({ initialEvents }) {
     const timeout = setTimeout(async () => {
       try {
         const response = await fetch(
-          apiUrl(`/events?search=${encodeURIComponent(query)}`),
+          apiUrl(`/events?${params.toString()}`),
           { cache: "no-store", signal: controller.signal },
         );
 
@@ -50,7 +55,7 @@ export default function EventBrowser({ initialEvents }) {
       clearTimeout(timeout);
       controller.abort();
     };
-  }, [search, initialEvents]);
+  }, [search, eventType, initialEvents]);
 
   return (
     <div>
@@ -67,6 +72,15 @@ export default function EventBrowser({ initialEvents }) {
             className="grow"
           />
         </label>
+        <select
+          className="select select-bordered w-full rounded-xl bg-base-100 sm:w-56"
+          value={eventType}
+          onChange={(event) => setEventType(event.target.value)}
+          aria-label="Filter events by type"
+        >
+          <option value="all">All event types</option>
+          {eventTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+        </select>
         <p className="text-sm text-base-content/60" aria-live="polite">
           {loading ? "Searching…" : `${events.length} ${events.length === 1 ? "event" : "events"}`}
         </p>
@@ -81,7 +95,7 @@ export default function EventBrowser({ initialEvents }) {
       ) : (
         <div className="rounded-2xl border border-base-300 bg-base-100 px-6 py-14 text-center">
           <h2 className="text-2xl font-semibold">No matching events</h2>
-          <p className="mt-3 text-base-content/70">Try another title, description, or location.</p>
+          <p className="mt-3 text-base-content/70">Try another search or choose a different event type.</p>
         </div>
       )}
     </div>

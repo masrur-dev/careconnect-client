@@ -1,7 +1,7 @@
 
 import { Suspense } from "react";
 import { connection } from "next/server";
-import EventCard from "@/components/EventCard";
+import EventBrowser from "@/components/EventBrowser";
 import { apiUrl } from "@/lib/api";
 
 async function getEvents() {
@@ -65,13 +65,7 @@ async function EventsList() {
     );
   }
 
-  return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {events.map((event) => (
-        <EventCard key={event._id} event={event} />
-      ))}
-    </div>
-  );
+  return <EventBrowser initialEvents={events} />;
 }
 
 export default function UpcomingEventsPage() {

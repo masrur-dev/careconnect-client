@@ -7,7 +7,7 @@ The platform helps people connect through activities such as tree plantation, do
 
 ## Live Website
 
-Coming soon.
+[CareConnect Live Website](https://careconnect-client-a79p.vercel.app/)
 
 ## GitHub Repositories
 

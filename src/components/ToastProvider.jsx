@@ -56,7 +56,7 @@ export default function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={toast}>
       {children}
-      <div className="toast toast-end toast-top z-[100]" aria-live="polite" aria-label="Notifications">
+      <div className="toast toast-end toast-bottom z-[100]" aria-live="polite" aria-label="Notifications">
         {notifications.map(({ id, type, message }) => {
           const { className, Icon } = toastStyles[type] || toastStyles.info;
 

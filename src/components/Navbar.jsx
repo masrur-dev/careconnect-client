@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { clearJwt } from "@/lib/api";
 import AuthNav from "@/components/AuthNav";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Menu, X } from "lucide-react";
@@ -25,6 +26,8 @@ export default function Navbar() {
       console.error("Logout failed:", error);
       return;
     }
+
+    clearJwt();
 
     closeMenu();
     router.push("/");

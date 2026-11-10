@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { clearJwt } from "@/lib/api";
 import { useToast } from "@/components/ToastProvider";
 
 export default function LoginPage() {
@@ -63,6 +64,10 @@ export default function LoginPage() {
         toast.error(message);
         return;
       }
+
+      // Drop any cached JWT from a previous account so apiFetch
+      // cannot keep sending the old user's token after this login.
+      clearJwt();
 
       toast.success("Login successful!");
 

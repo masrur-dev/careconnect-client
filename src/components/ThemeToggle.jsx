@@ -1,12 +1,36 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
+
+// The <html data-theme> attribute is the single source of truth for the
+// current theme, so React reads it instead of keeping (and resetting)
+// its own state inside an effect.
+function subscribeToTheme(callback) {
+  const observer = new MutationObserver(callback);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+  return () => observer.disconnect();
+}
+
+function getThemeSnapshot() {
+  return document.documentElement.getAttribute("data-theme") || "light";
+}
+
+function getServerThemeSnapshot() {
+  return "light";
+}
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState("light");
+  const theme = useSyncExternalStore(
+    subscribeToTheme,
+    getThemeSnapshot,
+    getServerThemeSnapshot,
+  );
 
-  // Restore saved theme after page loads
+  // Restore saved theme after hydration (localStorage is unavailable on the server)
   useEffect(() => {
     const savedTheme = localStorage.getItem(
       "careconnect-theme"
@@ -17,24 +41,18 @@ export default function ThemeToggle() {
         "data-theme",
         savedTheme
       );
-      setTheme(savedTheme);
     }
   }, []);
 
   // Change theme
   const toggleTheme = () => {
-    const currentTheme =
-      document.documentElement.getAttribute("data-theme") ||
-      "light";
-
     const nextTheme =
-      currentTheme === "dark" ? "light" : "dark";
+      theme === "dark" ? "light" : "dark";
 
     document.documentElement.setAttribute(
       "data-theme",
       nextTheme
     );
-    setTheme(nextTheme);
 
     localStorage.setItem(
       "careconnect-theme",

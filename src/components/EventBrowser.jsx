@@ -6,12 +6,21 @@ import EventCard from "@/components/EventCard";
 import { apiUrl } from "@/lib/api";
 
 export default function EventBrowser({ initialEvents }) {
-  const [events, setEvents] = useState(initialEvents);
+  // Holds only fetch results for active filters; with no filters the
+  // displayed list is derived directly from initialEvents (no effect reset).
+  const [filteredEvents, setFilteredEvents] = useState(initialEvents);
   const [search, setSearch] = useState("");
   const [eventType, setEventType] = useState("all");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const eventTypes = Array.from(new Set(initialEvents.map((event) => event.eventType).filter(Boolean)));
+
+  const hasFilters = Boolean(search.trim()) || eventType !== "all";
+  const events = hasFilters ? filteredEvents : initialEvents;
+  // Stale loading/error from an abandoned search must not show once
+  // the filters are cleared (display is gated by hasFilters).
+  const searching = hasFilters && loading;
+  const searchError = hasFilters ? error : "";
 
   useEffect(() => {
     const query = search.trim();
@@ -19,18 +28,16 @@ export default function EventBrowser({ initialEvents }) {
     if (query) params.set("search", query);
     if (eventType !== "all") params.set("type", eventType);
 
-    if (params.size === 0) {
-      setEvents(initialEvents);
-      setError("");
-      setLoading(false);
-      return;
-    }
+    // No active filters: the displayed list is already derived from
+    // initialEvents — nothing to fetch and no state to reset.
+    if (params.size === 0) return;
 
     const controller = new AbortController();
-    setLoading(true);
-    setError("");
 
     const timeout = setTimeout(async () => {
+      setLoading(true);
+      setError("");
+
       try {
         const response = await fetch(
           apiUrl(`/events?${params.toString()}`),
@@ -40,10 +47,10 @@ export default function EventBrowser({ initialEvents }) {
         if (!response.ok) throw new Error("Unable to search events.");
 
         const results = await response.json();
-        if (!controller.signal.aborted) setEvents(results);
-      } catch (searchError) {
+        if (!controller.signal.aborted) setFilteredEvents(results);
+      } catch (fetchError) {
         if (!controller.signal.aborted) {
-          console.error("Event search error:", searchError);
+          console.error("Event search error:", fetchError);
           setError("Search is temporarily unavailable. Please try again.");
         }
       } finally {
@@ -82,11 +89,11 @@ export default function EventBrowser({ initialEvents }) {
           {eventTypes.map((type) => <option key={type} value={type}>{type}</option>)}
         </select>
         <p className="text-sm text-base-content/60" aria-live="polite">
-          {loading ? "Searching…" : `${events.length} ${events.length === 1 ? "event" : "events"}`}
+          {searching ? "Searching…" : `${events.length} ${events.length === 1 ? "event" : "events"}`}
         </p>
       </div>
 
-      {error && <p role="alert" className="alert alert-warning mb-5">{error}</p>}
+      {searchError && <p role="alert" className="alert alert-warning mb-5">{searchError}</p>}
 
       {events.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

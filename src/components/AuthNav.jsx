@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { clearJwt } from "@/lib/api";
 import { useToast } from "@/components/ToastProvider";
 
 function ProfileAvatar({ image, name }) {
@@ -48,6 +49,10 @@ export default function AuthNav() {
       toast.error("Logout failed");
       return;
     }
+
+    // Cached JWT must not survive logout, or the next account
+    // signed in on this tab would reuse the previous user's token.
+    clearJwt();
 
     toast.success("Logged out successfully");
     router.push("/");

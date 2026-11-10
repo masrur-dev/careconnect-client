@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ToastProvider";
 import { authClient } from "@/lib/auth-client";
+import { clearJwt } from "@/lib/api";
 
 export default function RegisterPage() {
   const toast = useToast();
@@ -91,6 +92,10 @@ export default function RegisterPage() {
         toast.error(error.message || "Registration failed.");
         return;
       }
+
+      // Drop any cached JWT from a previous account so apiFetch
+      // cannot keep sending the old user's token after this signup.
+      clearJwt();
 
       toast.success("Registration successful!");
 

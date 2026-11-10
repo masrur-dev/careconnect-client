@@ -9,12 +9,18 @@ if (!uri) {
 
 const globalForMongo = globalThis;
 
-if (!globalForMongo._careconnectMongoClient) {
-  globalForMongo._careconnectMongoClient = new MongoClient(uri, {
+if (!globalForMongo._careconnectMongoPromise) {
+  const client = new MongoClient(uri, {
     serverSelectionTimeoutMS: 10000,
   });
+
+  globalForMongo._careconnectMongoPromise = client
+    .connect()
+    .catch((error) => {
+      globalForMongo._careconnectMongoPromise = null;
+      throw error;
+    });
 }
 
-export const mongoClientPromise = Promise.resolve(
-  globalForMongo._careconnectMongoClient
-);
+export const mongoClientPromise =
+  globalForMongo._careconnectMongoPromise;

@@ -1,8 +1,13 @@
 // Single source of truth for the Express backend base URL.
 // Server components and client components both read this — it is not a secret.
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
+if (!apiBaseUrl && process.env.NODE_ENV === "production") {
+  throw new Error("NEXT_PUBLIC_API_URL is missing");
+}
+
+export const API_BASE_URL =
+  apiBaseUrl || "http://localhost:5000";
 export function apiUrl(path) {
   const p = path.startsWith("/") ? path : `/${path}`;
   return `${API_BASE_URL}${p}`;
